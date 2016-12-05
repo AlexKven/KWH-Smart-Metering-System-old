@@ -1,0 +1,88 @@
+template <typename T>
+class Queue
+{
+	struct QNode
+	{
+		T data;
+		QNode *next;
+		void totalDelete()
+		{
+			if (next != NULL)
+			{
+				next->totalDelete();
+				delete next;
+			}
+		}
+	};
+private:
+	QNode *front;
+	QNode *back;
+	int count;
+public:
+	Queue()
+	{
+		front = NULL;
+		back = NULL;
+	}
+
+	~Queue()
+	{
+		clear();
+	}
+
+	int getCount()
+	{
+		return count;
+	}
+
+	T peek()
+	{
+		if (front != NULL)
+		{
+			return front->data;
+		}
+	}
+
+	void push(T val)
+	{
+		QNode *node = new QNode();
+		node->data = val;
+		node->next = NULL;
+		if (back == NULL)
+			front = node;
+		else
+			back->next = node;
+		back = node;
+		count++;
+	}
+
+	T pop()
+	{
+		T result = peek();
+		//Serial.println("P0");
+
+		if (front != NULL)
+		{
+			//Serial.println("P2");
+			QNode *tmp = front;
+			front = front->next;
+			delete tmp;
+			Serial.println(count);
+			count--;
+			if (front == NULL)
+				back = NULL;
+		}
+
+		return result;
+	}
+
+	void clear()
+	{
+		if (front != NULL)
+		{
+			front->totalDelete();
+			delete front;
+		}
+		count = 0;
+	}
+};

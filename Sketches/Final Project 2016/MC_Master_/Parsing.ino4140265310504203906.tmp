@@ -1,0 +1,131 @@
+#define DATA_LOG            "datalog.txt"
+#define MAX_CUSTOMERS       255
+#define CC_LENGTH           1
+#define AC_LENGTH           3
+#define PN_LENGTH           7
+#define TOTAL_PN_LENGTH     (CC_LENGTH + AC_LENGTH + PN_LENGTH)
+#define DELIMITER           ','
+#define METER_NUM_SIZE      3
+#define USAGE_SIZE          5
+#define MAX_CHAR_SIZE       20
+
+//SoftwareSerial gprsSerial(10, 8);
+#define gprsSerial Serial1
+String p_nextMessage = "";
+long p_tme = 0;
+
+#define MAX_AT_RESPONSE_SIZE 128
+#define _NONE -1
+#define _PARSING 0
+#define AT_UNKNOWN 1
+#define SMS_READ 2
+#define SMS_DETAIL 3
+char p_atResponse[MAX_AT_RESPONSE_SIZE];
+int p_curCommand = _NONE;
+bool p_inQuotes = false;
+int p_curParam = 0;
+char p_ignoreChar = '\0';
+bool p_escaped = false;
+bool p_paramMode = false;
+bool p_contentMode = false;
+
+void ParseInput(char input)
+{
+  bool concatResp = false;
+  bool paramMode = false;
+  if (input == p_ignoreChar)
+  {
+    return;
+  }
+  p_ignoreChar = '\0';
+  if (p_escaped)
+  {
+    concatResp = true;
+  }
+  else
+  {
+    switch (p_curCommand)
+    {
+      case _NONE:
+        if (input == '+')
+        {
+          p_curCommand = _PARSING;
+          p_atResponse[0] = '\0';
+        }
+      break;
+      case _PARSING:
+        if (input == ':')
+        {
+          //Serial.println(atResponse);
+          if (strcmp(p_atResponse, "CMTI") == 0)
+            p_curCommand = SMS_READ;
+          else
+            p_curCommand = AT_UNKNOWN;
+          p_ignoreChar = ' ';
+        }
+        else
+        {
+          //Serial.println("else");
+          concatResp = true;
+        }
+      break;
+      case AT_UNKNOWN:
+        if (input == '\r')
+          p_curCommand = _NONE;
+      break;
+      case SMS_READ:
+        //Serial.print('r'); \\dbg
+  //      if (curChar == '\\')
+  //        ignorChar = '"';
+          p_paramMode = true;
+          Serial.print("Input: ");
+          Serial.println(input);
+          if (input == '\r')
+          {
+            p_curCommand = _NONE;
+            requestMessage(p_atResponse);
+          }
+      break;
+    }
+  }
+  p_escaped = false;
+  if (paramMode)
+  {
+      if (input == '"')
+        p_inQuotes = !p_inQuotes;
+      else
+      {
+      if (p_inQuotes)
+          concatResp = true;
+        else
+        {
+          if (input == ',')
+          {
+            p_curParam++;
+            p_atResponse[0] = '\0';
+          }
+          else if (input == '\r')
+          {
+            p_curCommand = _NONE;
+            p_atResponse[0] = '\0';
+          }
+          else
+            concatResp = true;
+        }
+    }
+  }
+  if (concatResp)
+  {
+    //Serial.println("cr");
+    bool done = false;
+    for (int i = 0; i < MAX_AT_RESPONSE_SIZE - 1; i++)
+    {
+      if (!done && p_atResponse[i] == '\0')
+      {
+        p_atResponse[i] = input;
+        p_atResponse[i + 1] = '\0';
+        done = true;
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+void setup() 
+{
+  Serial.begin(9600);
+  Serial.println("Master!");
+  setupTime();
+  setupCommunication();
+  setupArchiver();
+  setupGPRS();
+  Tasks::setupTasks();
+}
+
+void loop() 
+{
+  String str;
+  char chr;
+  loopTime();
+  loopCommunication();
+  loopArchiver();
+  loopGPRS();
+  loopTasks();
+  if (Serial.available())
+  {
+    chr = Serial.read();
+    switch (chr)
+    {
+      case 'm':
+        SendSMSMessage("Hello!");
+      break;
+      case 'd':
+        delay(20);
+        chr = Serial.read();
+        str = "";
+        while (chr >= '0' && chr <= '9')
+        {
+          str.concat(chr);
+          delay(20);
+          chr = Serial.read();
+        }
+        deleteMessage(str.c_str());
+      break;
+      case 'r':
+        delay(20);
+        chr = Serial.read();
+        str = "";
+        while (chr >= '0' && chr <= '9')
+        {
+          str.concat(chr);
+          delay(20);
+          chr = Serial.read();
+        }
+        requestMessage(str.c_str());
+      break;
+    }
+  }
+}
+
