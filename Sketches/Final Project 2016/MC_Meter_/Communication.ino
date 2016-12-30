@@ -69,13 +69,13 @@ void HandleMessage(bool error, byte *message, int len)
   {
     setCurrentTime(time);
   }
-  if (secretary->receivePowerSetRequest(message, &on))
-  {
-    if (on)
-      digitalWrite(4, HIGH);
-    else
-      digitalWrite(4, LOW);
-  }
+//  if (secretary->receivePowerSetRequest(message, &on))
+//  {
+//    if (on)
+//      digitalWrite(4, HIGH);
+//    else
+//      digitalWrite(4, LOW);
+//  }
 }
 
 void setupCommunication()

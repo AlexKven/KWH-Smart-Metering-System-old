@@ -52,14 +52,14 @@ inline void parseLine()
         Serial.print("Turn ");
         Serial.print(id);
         Serial.println(" off.");
-        secretary->requestPowerSet(id, false);
+        //secretary->requestPowerSet(id, false);
       }
       else if (p_curGPRSLine[i + 1] == 'o' && p_curGPRSLine[i + 2] == 'n')
       {
         Serial.print("Turn ");
         Serial.print(id);
         Serial.println(" on.");
-        secretary->requestPowerSet(id, true);
+        //secretary->requestPowerSet(id, true);
       }
       deleteMessage(msgId);
       SMSWaiting = false;

@@ -1,5 +1,4 @@
 #include <SPI.h>
-#include <String.h>
 #include <stdio.h>
 
 #define DATA_LOG            "datalog.txt"
@@ -97,7 +96,7 @@ void loopGPRS()
   {
     delay(5);
     char c = gprsSerial.read();
-    //Serial.write(c); // display the output of the shield
+    Serial.write(c); // display the output of the shield
     parseInput(c);
   }
 }
