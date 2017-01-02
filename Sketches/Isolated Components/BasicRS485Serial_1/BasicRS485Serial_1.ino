@@ -1,9 +1,18 @@
 #include <SoftwareSerial.h>
-#define SSerialRX        12
-#define SSerialTX        13
 
-#define SSerialTeControl 6
-#define SSerialReControl 5
+//Smart Metering System
+//#define SSerialRX        12
+//#define SSerialTX        13
+//
+//#define SSerialTeControl 6
+//#define SSerialReControl 5
+
+//Simple Arduino test
+#define SSerialRX        10
+#define SSerialTX        11
+
+#define SSerialTeControl 4 
+#define SSerialReControl 3
 
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
@@ -41,7 +50,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   SetTransmitEnabled(false);
   
   // Start the software serial port, to another device
-  RS485Serial.begin(19200);   // set the data rate 
+  RS485Serial.begin(9600);   // set the data rate 
 
 }//--(end setup )---
 
