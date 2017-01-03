@@ -23,12 +23,13 @@ SoftwareSerial serial(10, 11);
  *  u8txenpin : 0 for RS-232 and USB-FTDI 
  *               or any pin number > 1 for RS-485
  */
-Modbus slave(1,0,4); // this is slave @1 and RS-232 or USB-FTDI
+Modbus slave(1,1,4); // this is slave @1 and RS-232 or USB-FTDI
 
 void setup() {
   slave.begin( 9600 ); // baud-rate at 19200
 }
 
 void loop() {
+  au16data[0] = millis();
   slave.poll( au16data, 16 );
 }
