@@ -17,7 +17,7 @@
 #include <ModbusRtu.h>
 
 // data array for modbus network sharing
-uint16_t au16data[16];
+uint16_t au16data[64];
 uint16_t writeval;
 uint8_t u8state;
 
@@ -41,7 +41,7 @@ unsigned long u32wait;
 
 void setup() {
   Serial.begin(9600);
-  master.begin( 9600 ); // baud-rate at 19200
+  master.begin( 19200 ); // baud-rate at 19200
   master.setTimeOut( 2000 ); // if there is no answer in 2000 ms, roll over
   u32wait = millis() + 2000;
   u8state = 0; 
@@ -56,7 +56,7 @@ void loop() {
     telegram.u8id = 1; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
     telegram.u16RegAdd = 0; // start address in slave
-    telegram.u16CoilsNo = 16; // number of elements (coils or registers) to read
+    telegram.u16CoilsNo = 60; // number of elements (coils or registers) to read
     telegram.au16reg = au16data; // pointer to a memory array in the Arduino
 
     master.query( telegram ); // send query (only once)
@@ -64,12 +64,11 @@ void loop() {
     break;
   case 2:
     master.poll(); // check incoming messages
-    Serial.print("State: ");
     if (master.getState() == COM_IDLE) {
       u8state = 0;
       u32wait = millis() + 2000; 
       Serial.println("Data:");
-      for (int i = 0; i < 16; i++)
+      for (int i = 0; i < 60; i++)
       {
         Serial.println(au16data[i]);
       }

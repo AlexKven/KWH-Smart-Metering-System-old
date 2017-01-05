@@ -17,11 +17,14 @@
 #include <ModbusRtu.h>
 
 #define UNASSIGNED 247;
+const int MAX_DEVICES = 256;
 
 // data array for modbus network sharing
 uint16_t au16data[16];
 uint16_t writeval;
 uint8_t u8state;
+
+uint8_t* DeviceDirectory;
 
 SoftwareSerial serial(10, 11);
 
@@ -44,11 +47,39 @@ int numSlaves = 0;
 
 void setup()
 {
+  DeviceDirectory = new uint8_t[MAX_DEVICES * 10];
+  
   Serial.begin(9600);
   master.begin( 9600 ); // baud-rate at 19200
   master.setTimeOut( 2000 ); // if there is no answer in 2000 ms, roll over
   u32wait = millis() + 2000;
   u8state = 0; 
+}
+
+int AddToDeviceDirectory(uint8_t* devName8, uint8_t devType, slaveID)
+{
+  int row = 0;
+  while (DeviceDirectory[row * 10 + 8] != 0)
+    row++;
+  int ind = 10 * row;
+  for (int i = 0; i < 8; i++)
+    DeviceDirectory[ind + i] = devName8[i];
+  DeviceDirectory[ind + 8] = devType;
+  DeviceDirectory[ind + 9] = slaveID;
+  return row;
+}
+
+void clearDeviceDirectory(int row)
+{
+  int ind = 10 * row;
+  for (int i = 0; i < 9; i++)
+    DeviceDirectory[ind + i] = 0;
+  if (row == MAX_DEVICES - 1 || DeviceDirectory[ind + 18] == 0)
+    DeviceDirectory[ind + 9] = 0;
+  else
+    DeviceDirectory[ind + 9] = 1;
+  if (row > 0 && DeviceDirectory[ind - 2] == 0)
+    DeviceDirectory[ind - 1] = 0;
 }
 
 void loop() {

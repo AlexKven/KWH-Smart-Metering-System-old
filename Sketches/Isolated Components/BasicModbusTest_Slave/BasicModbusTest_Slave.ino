@@ -11,8 +11,11 @@
 #include <SoftwareSerial.h>
 
 // data array for modbus network sharing
-uint16_t au16data[16] = {
-  3, 1415, 9265, 4, 2, 7182, 28182, 8, 0, 0, 0, 0, 0, 0, 1, -1 };
+uint16_t au16data[64] = {
+  3, 1415, 9265, 4, 2, 7182, 28182, 8, 0, 0, 0, 0, 0, 0, 1, -1,
+  3, 1415, 9265, 4, 2, 7182, 28182, 8, 0, 0, 0, 0, 0, 0, 1, -1,
+  3, 1415, 9265, 4, 2, 7182, 28182, 8, 0, 0, 0, 0, 0, 0, 1, -1,
+  3, 1415, 9265, 4, 2, 7182, 28182, 8, 0, 0, 0, 0, 0, 0, 1, -1};
 
 SoftwareSerial serial(10, 11);
 
@@ -26,10 +29,10 @@ SoftwareSerial serial(10, 11);
 Modbus slave(1,1,4); // this is slave @1 and RS-232 or USB-FTDI
 
 void setup() {
-  slave.begin( 9600 ); // baud-rate at 19200
+  slave.begin( 19200 ); // baud-rate at 19200
 }
 
 void loop() {
   au16data[0] = millis();
-  slave.poll( au16data, 16 );
+  slave.poll( au16data, 60 );
 }
