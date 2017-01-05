@@ -18,6 +18,15 @@
 
 #define UNASSIGNED 247;
 const int MAX_DEVICES = 256;
+const int MAX_DEVICES_PER_SLAVE = 5;
+const int MAX_RESPONSE_SIZE = 60;
+
+enum
+{
+  WAIT = 0,
+  CHECK_NEW_DEVICES = 1,
+  RESPOND_NEW_DEVICE = 3,
+}
 
 // data array for modbus network sharing
 uint16_t au16data[16];
@@ -25,6 +34,7 @@ uint16_t writeval;
 uint8_t u8state;
 
 uint8_t* DeviceDirectory;
+uint16_t* Response;
 
 SoftwareSerial serial(10, 11);
 
@@ -48,12 +58,13 @@ int numSlaves = 0;
 void setup()
 {
   DeviceDirectory = new uint8_t[MAX_DEVICES * 10];
+  Response = new uint16_t[MAX_RESPONSE_SIZE];
   
   Serial.begin(9600);
   master.begin( 9600 ); // baud-rate at 19200
   master.setTimeOut( 2000 ); // if there is no answer in 2000 ms, roll over
   u32wait = millis() + 2000;
-  u8state = 0; 
+  u8state = CHECK_NEW_DEVICES; 
 }
 
 int AddToDeviceDirectory(uint8_t* devName8, uint8_t devType, slaveID)
@@ -84,25 +95,24 @@ void clearDeviceDirectory(int row)
 
 void loop() {
   switch( u8state ) {
-  case 0: 
+  case WAIT: 
     if (millis() > u32wait) u8state++; // wait state
     break;
-  case 1: 
+  case CHECK_NEW_DEVICES: 
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
     telegram.u16RegAdd = 0; // start address in slave
-    telegram.u16CoilsNo = 4; // number of elements (coils or registers) to read
-    telegram.au16reg = au16data; // pointer to a memory array in the Arduino
+    telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 9; // number of elements (coils or registers) to read
+    telegram.au16reg = Response; // pointer to a memory array in the Arduino
 
     master.query( telegram ); // send query (only once)
     u8state++;
     break;
   case 2:
     master.poll(); // check incoming messages
-      Serial.println(master.getState());
     if (master.getState() == COM_IDLE)
     {
-      if (au16data[0] == 0)
+      if (Response[0] == 0)
       {
         if (master.getTimeOutState())
         {
@@ -112,14 +122,24 @@ void loop() {
       }
       else
       {
-        u8state = 3;
+        u8state = 0;
         u32wait = millis() + 2000;
-        Serial.println("Found unassigned slave.");
-        Serial.print("Slave type: ");
-        Serial.println(au16data[0]);
-        Serial.print("Previous ID: ");
-        Serial.println(au16data[2]);
-        au16data[0] = 0;
+        int numDevices = 0;
+        while (numDevices < MAX_DEVICES_PER_SLAVE && &(Response + numDevices * 9) != 0)
+          numDevices++;
+        Serial.print("Found unassigned slave with ");
+        Serial.print(numDevices);
+        Serial.println(" devices.");
+        for (int i = 0; i < numDevices; i++)
+        {
+          Serial.print("Device type: ");
+          Serial.println(&(Response + i * 9));
+          Serial.print("Device name: ");
+          for (int j = 0; j < 5; j++)
+            Serial.write(&(Response + i * 9 + i + j));
+          Serial.println("");
+        }
+        Response[0] = 0;
       }
     }
     delay(500);
