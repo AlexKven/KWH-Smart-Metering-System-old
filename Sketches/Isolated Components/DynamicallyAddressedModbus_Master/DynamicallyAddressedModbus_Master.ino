@@ -19,22 +19,23 @@
 #define UNASSIGNED 247;
 const int MAX_DEVICES = 256;
 const int MAX_DEVICES_PER_SLAVE = 5;
-const int MAX_RESPONSE_SIZE = 60;
+const int MAX_RESPONSE_SIZE = 120;
 
 enum
 {
   WAIT = 0,
   CHECK_NEW_DEVICES = 1,
+  CHECK_NEW_DEVICES_RESPONSE = 2,
   RESPOND_NEW_DEVICE = 3,
-}
+};
 
 // data array for modbus network sharing
 uint16_t au16data[16];
-uint16_t writeval;
+uint8_t writeval[2];
 uint8_t u8state;
 
 uint8_t* DeviceDirectory;
-uint16_t* Response;
+uint8_t* Response;
 
 SoftwareSerial serial(10, 11);
 
@@ -58,16 +59,16 @@ int numSlaves = 0;
 void setup()
 {
   DeviceDirectory = new uint8_t[MAX_DEVICES * 10];
-  Response = new uint16_t[MAX_RESPONSE_SIZE];
+  Response = new uint8_t[MAX_RESPONSE_SIZE];
   
   Serial.begin(9600);
-  master.begin( 9600 ); // baud-rate at 19200
-  master.setTimeOut( 2000 ); // if there is no answer in 2000 ms, roll over
-  u32wait = millis() + 2000;
+  master.begin( 19200 ); // baud-rate at 19200
+  master.setTimeOut( 50 ); // if there is no answer in 2000 ms, roll over
+  u32wait = millis() + 50;
   u8state = CHECK_NEW_DEVICES; 
 }
 
-int AddToDeviceDirectory(uint8_t* devName8, uint8_t devType, slaveID)
+int AddToDeviceDirectory(uint8_t* devName8, uint8_t devType, int slaveID)
 {
   int row = 0;
   while (DeviceDirectory[row * 10 + 8] != 0)
@@ -102,13 +103,13 @@ void loop() {
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
     telegram.u16RegAdd = 0; // start address in slave
-    telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 9; // number of elements (coils or registers) to read
-    telegram.au16reg = Response; // pointer to a memory array in the Arduino
+    telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 5; // number of elements (coils or registers) to read
+    telegram.au16reg = (uint16_t*)Response; // pointer to a memory array in the Arduino
 
     master.query( telegram ); // send query (only once)
     u8state++;
     break;
-  case 2:
+  case CHECK_NEW_DEVICES_RESPONSE:
     master.poll(); // check incoming messages
     if (master.getState() == COM_IDLE)
     {
@@ -116,16 +117,17 @@ void loop() {
       {
         if (master.getTimeOutState())
         {
-          master.setTimeOut(2000);
+          //Serial.println("Timeout!");
+          master.setTimeOut(50);
           u8state = 0;
         }
       }
       else
       {
-        u8state = 0;
-        u32wait = millis() + 2000;
+        u8state = RESPOND_NEW_DEVICE;
+        u32wait = millis() + 50;
         int numDevices = 0;
-        while (numDevices < MAX_DEVICES_PER_SLAVE && &(Response + numDevices * 9) != 0)
+        while (numDevices < MAX_DEVICES_PER_SLAVE && Response[numDevices * 10] != 0)
           numDevices++;
         Serial.print("Found unassigned slave with ");
         Serial.print(numDevices);
@@ -133,24 +135,25 @@ void loop() {
         for (int i = 0; i < numDevices; i++)
         {
           Serial.print("Device type: ");
-          Serial.println(&(Response + i * 9));
+          Serial.println(Response[i * 10]);
           Serial.print("Device name: ");
-          for (int j = 0; j < 5; j++)
-            Serial.write(&(Response + i * 9 + i + j));
+          for (int j = 0; j < 8; j++)
+            Serial.write(Response[i * 10 + 1 + j]);
           Serial.println("");
         }
         Response[0] = 0;
       }
     }
-    delay(500);
     break;
-  case 3:
-    writeval = numSlaves + 1;
+  case RESPOND_NEW_DEVICE:
+    Serial.println("Responding...");
+    writeval[0] = 0;
+    writeval[1] = numSlaves + 1;
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 16; // function code (this one is registers write)
-    telegram.u16RegAdd = 1; // start address in slave
+    telegram.u16RegAdd = 0; // start address in slave
     telegram.u16CoilsNo = 1; // number of elements (coils or registers) to read
-    telegram.au16reg = &writeval; // pointer to a memory array in the Arduino
+    telegram.au16reg = (uint16_t*)writeval; // pointer to a memory array in the Arduino
 
     master.query( telegram ); // send query (only once)
     u8state++;
