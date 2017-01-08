@@ -9,11 +9,12 @@
 
 #include <ModbusRtu.h>
 #include <SoftwareSerial.h>
+#include "RegisterData.cpp"
 
 #define UNASSIGNED 247;
 
 // data array for modbus network sharing
-uint8_t Registers[50];
+RegisterData *Registers;
 // = { 
 //  1, // 1 = meter, 2 = transmitter (SD card or wireless)
 //  0, // Newly Assigned ID (waiting for this from master)
@@ -23,8 +24,8 @@ uint8_t Registers[50];
 
 uint8_t SlaveID = 247;
 
-char* Dev1Name = "Cha_Mtr0";
-char* Dev2Name = "Cha_Arc0";
+char* Dev1Name = const_cast<char*>("Cha_Mtr0");
+char* Dev2Name = const_cast<char*>("Cha_Arc0");
 char Dev1Type = 1;
 char Dev2Type = 2;
 
@@ -41,35 +42,30 @@ Modbus slave(247,1,4); // this is slave @1 and RS-232 or USB-FTDI
 
 void setup()
 {
+  Registers = new RegisterData(25);
   Serial.begin(9600);
   Serial.println("Initialized unassigned");
   slave.begin(19200); // baud-rate at 19200
-  Registers[0] = Dev1Type;
-  Registers[10] = Dev2Type;
-  Registers[30] = 0;
-  uint8_t *ptr1 = (uint8_t*)Dev1Name;
-  uint8_t *ptr2 = (uint8_t*)Dev2Name;
-  for (int i = 0; i < 8; i++)
-  {
-    Registers[i + 1] = *ptr1;
-    Registers[i + 11] = *ptr2;
-    ptr1++;
-    ptr2++;
-  }
+  Registers->set<uint8_t>(0, Dev1Type);
+  Registers->set<uint8_t>(10, Dev2Type);
+  Registers->set<uint8_t>(30, 0);
+  Registers->setString(1, Dev1Name, 8);
+  Registers->setString(11, Dev2Name, 8);
   for (int i = 0; i < 20; i++)
   {
-    Serial.println(Registers[i]);
+    Serial.println(Registers->get<uint8_t>(i));
   }
 }
 
 void loop()
 {
-  slave.poll((uint16_t*)Registers, 25);
+  uint8_t *bytes = Registers->getArray<uint8_t>();
+  slave.poll(Registers->getArray(), Registers->getLength());
   if (SlaveID == 247) //Slave is unassigned
   {
-    if (Registers[0] == 0) //Slave was just assigned
+    if (Registers->get<uint8_t>(0) == 0) //Slave was just assigned
     {
-      SlaveID = Registers[1];
+      SlaveID = Registers->get<uint8_t>(1);
       slave.setID(SlaveID);
       Serial.print("Successfully assigned slave # ");
       Serial.println(SlaveID);
