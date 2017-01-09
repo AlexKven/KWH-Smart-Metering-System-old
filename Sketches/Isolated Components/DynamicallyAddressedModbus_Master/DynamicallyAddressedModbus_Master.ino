@@ -15,6 +15,7 @@
  */
 
 #include <ModbusRtu.h>
+#include <EEPROM.h>
 #include "RegisterData.cpp"
 
 #define UNASSIGNED 247;
@@ -36,6 +37,7 @@ RegisterData *Transmission;
 RegisterData *Response;
 uint8_t** DevNameList;
 uint8_t State;
+bool SlaveIDsExhausted = false;
 
 SoftwareSerial serial(10, 11);
 
@@ -107,7 +109,16 @@ void loop() {
         uint8_t devType;
         bool found = FindDeviceDetails(Response->getArray<uint8_t>() + 1, &devType, &newID);
         if (!found)
+        {
           newID = FindFreeSlaveID();
+          if (newID == 0)
+          {
+            SlaveIDsExhausted = true;
+            Serial.println("All available slave IDs have been assigned, not accepting new slaves.");
+            State = WAIT;
+            break;
+          }
+        }
         int numDevices = 0;
         while (numDevices < MAX_DEVICES_PER_SLAVE && Response->get<uint8_t>(numDevices * 10) != 0)
           numDevices++;
@@ -145,6 +156,7 @@ void loop() {
         int numDeleted = DeleteDevicesForSlaveNotInList(DevNameList, numDevices, newID);
         if (numDeleted > 0)
         {
+          SlaveIDsExhausted = (FindFreeSlaveID() == 0);
           Serial.print("Deleted devices no longer associated with slave: ");
           Serial.println(numDeleted);
         }

@@ -1,15 +1,56 @@
 const int MAX_DEVICES = 256;
 uint8_t* DeviceDirectory;
+const int EEPROM_OFFSET = 1;
+const bool USE_EEPROM = false;
 
 //Device Directory row: [Name (8), DeviceType (1), SlaveID (1)]
 //If empty, DeviceType = 0, and SlaveID = 0 unless there's
 //device entries after that row, then SlaveID = 1
 
+void SetDirectoryValue(int index, uint8_t value)
+{
+  DeviceDirectory[index] = value;
+  if (USE_EEPROM)
+    EEPROM[index + EEPROM_OFFSET] = value;
+}
+
 void InitializeDeviceDirectory()
 {
   DeviceDirectory = new uint8_t[MAX_DEVICES * 10];
-  for (int i = 0; i < MAX_DEVICES * 10; i++)
-    DeviceDirectory[i] = 0;
+  if (USE_EEPROM)
+  {
+    if (EEPROM[0] != 1)
+    {
+      EEPROM[0] = 1;
+      for (int i = 0; i < MAX_DEVICES * 10; i++)
+        SetDirectoryValue(i, 0);
+    }
+    else
+    {
+      for (int i = 0; i < MAX_DEVICES * 10; i++)
+        DeviceDirectory[i] = EEPROM[i + EEPROM_OFFSET];
+    }
+  }
+  else
+  {
+    if (EEPROM[0] != 0)
+      EEPROM[0] = 0;
+    for (int i = 0; i < MAX_DEVICES * 10; i++)
+      SetDirectoryValue(i, 0);
+  }
+
+  //Test completed
+  //TestSlaveIDExhaustion();
+}
+
+//Warning: allocates memory!
+void TestSlaveIDExhaustion()
+{
+  uint8_t* dummyName = new uint8_t[8];
+  for (int i = 1; i <= 245; i++)
+  {
+    InsertIntoDeviceDirectoryRow(i - 1, dummyName, 1, i);
+  }
 }
 
 int FindFreeRow()
@@ -36,7 +77,7 @@ int FindFreeSlaveID()
     {
       slaveID++;
       i = 0;
-      if (slaveID > 247)
+      if (slaveID > 246)
         return 0;
     }
   }
@@ -132,9 +173,9 @@ void InsertIntoDeviceDirectoryRow(int row, uint8_t* devName8, uint8_t devType, i
 {
   int ind = 10 * row;
   for (int i = 0; i < 8; i++)
-    DeviceDirectory[ind + i] = devName8[i];
-  DeviceDirectory[ind + 8] = devType;
-  DeviceDirectory[ind + 9] = slaveID;
+    SetDirectoryValue(ind + i, devName8[i]);
+  SetDirectoryValue(ind + 8, devType);
+  SetDirectoryValue(ind + 9, slaveID);
 }
 
 bool UpdateItemInDeviceDirectory(uint8_t* devName8, uint8_t devType, int slaveID)
@@ -155,11 +196,11 @@ void ClearDeviceDirectoryRow(int row)
 {
   int ind = 10 * row;
   for (int i = 0; i < 9; i++)
-    DeviceDirectory[ind + i] = 0;
+    SetDirectoryValue(ind + i, 0);
   if (row == MAX_DEVICES - 1 || DeviceDirectory[ind + 18] == 0)
-    DeviceDirectory[ind + 9] = 0;
+    SetDirectoryValue(ind + 9, 0);
   else
-    DeviceDirectory[ind + 9] = 1;
+    SetDirectoryValue(ind + 9, 1);
   if (row > 0 && DeviceDirectory[ind - 2] == 0)
-    DeviceDirectory[ind - 1] = 0;
+    SetDirectoryValue(ind - 1, 0);
 }

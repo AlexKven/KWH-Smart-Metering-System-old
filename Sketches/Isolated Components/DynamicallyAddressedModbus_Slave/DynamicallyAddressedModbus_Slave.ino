@@ -9,6 +9,7 @@
 
 #include <ModbusRtu.h>
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 #include "RegisterData.cpp"
 
 #define UNASSIGNED 247;
@@ -24,8 +25,8 @@ RegisterData *Registers;
 
 uint8_t SlaveID = 247;
 
-char* Dev1Name = const_cast<char*>("Cha_Mtr0");
-char* Dev2Name = const_cast<char*>("Cha_Arc0");
+char* Dev1Name = const_cast<char*>("Cha_Arc0");
+char* Dev2Name = const_cast<char*>("Cha_Mtr1");
 char* Dev3Name = const_cast<char*>("Cha_Dev3");
 char* Dev4Name = const_cast<char*>("Cha_Dev4");
 char* Dev5Name = const_cast<char*>("Cha_Dev5");
