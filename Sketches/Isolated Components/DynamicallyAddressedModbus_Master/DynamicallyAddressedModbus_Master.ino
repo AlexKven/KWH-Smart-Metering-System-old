@@ -1,3 +1,6 @@
+#include <Time.h>
+#include <TimeLib.h>
+
 /**
  *  Modbus master example 1:
  *  The purpose of this example is to query an array of data
@@ -27,9 +30,11 @@ enum
 {
   WAIT = 0,
   CHECK_NEW_DEVICES = 1,
-  CHECK_NEW_DEVICES_RESPONSE = 2,
-  RESPOND_NEW_DEVICE = 3,
-  RESPOND_NEW_DEVICE_RESPONSE = 4,
+  CHECK_NEW_DEVICES_WAIT = 2,
+  ASSIGN_NEW_DEVICE = 3,
+  ASSIGN_NEW_DEVICE_WAIT = 4,
+  CONFIRM_NEW_DEVICE = 5,
+  CONFIRM_NEW_DEVICE_WAIT = 6,
 };
 
 // data array for modbus network sharing
@@ -38,6 +43,10 @@ RegisterData *Response;
 uint8_t** DevNameList;
 uint8_t State;
 bool SlaveIDsExhausted = false;
+int32_t LastCheckNewDevicesTime; //Every 2000
+int32_t LastAcquireDataTime; //Every 60000 (if time is known)
+int32_t LastCheckCommandsTime; //Every 1000
+int32_t LastRequestDateTimeTime; //Every 86400000 or 15000 (if time is unknown)
 
 SoftwareSerial serial(10, 11);
 
@@ -55,8 +64,6 @@ Modbus master(0,1,4); // this is master and RS-232 or USB-FTDI
  */
 modbus_t telegram;
 
-unsigned long u32wait;
-
 void setup()
 {
   Transmission = new RegisterData(MAX_TRANSMISSION_SIZE);
@@ -65,29 +72,44 @@ void setup()
   InitializeDeviceDirectory();
   
   Serial.begin(9600);
-  master.begin( 19200 ); // baud-rate at 19200
-  master.setTimeOut( 50 ); // if there is no answer in 2000 ms, roll over
-  u32wait = millis() + 50;
-  State = CHECK_NEW_DEVICES; 
+  master.begin( 19200 );
+  
+  int32_t curTime = millis();
+  LastCheckNewDevicesTime = curTime - 1000;
+  
+  State = WAIT;
 }
 
-void loop() {
-  switch( State ) {
+void loop()
+{
+  uint8_t newID;
+  uint8_t devSlaveID;
+  uint8_t devType;
+  int32_t curTime = millis();
+  switch(State)
+  {
   case WAIT: 
-    if (millis() > u32wait) State++; // wait state
+      if (curTime - LastCheckNewDevicesTime >= 2000)
+      {
+        State = CHECK_NEW_DEVICES;
+        LastCheckNewDevicesTime = curTime;
+      }
     break;
   case CHECK_NEW_DEVICES: 
+    Serial.println("Checking for new devices...");
+    Response->set(0, 0);
+    
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
     telegram.u16RegAdd = 0; // start address in slave
     telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 5; // number of elements (coils or registers) to read
     telegram.au16reg = Response->getArray(); // pointer to a memory array in the Arduino
 
-    Response->set(0, 0);
+    master.setTimeOut(50);
     master.query( telegram ); // send query (only once)
-    State++;
+    State = CHECK_NEW_DEVICES_WAIT;
     break;
-  case CHECK_NEW_DEVICES_RESPONSE:
+  case CHECK_NEW_DEVICES_WAIT:
     master.poll(); // check incoming messages
     if (master.getState() == COM_IDLE)
     {
@@ -95,18 +117,12 @@ void loop() {
       {
         if (master.getTimeOutState())
         {
-          //Serial.println("Timeout!");
-          master.setTimeOut(50);
+          Serial.println("No new devices found.");
           State = WAIT;
         }
       }
       else
       {
-        State = RESPOND_NEW_DEVICE;
-        u32wait = millis() + 50;
-        uint8_t newID;
-        uint8_t devSlaveID;
-        uint8_t devType;
         bool found = FindDeviceDetails(Response->getArray<uint8_t>() + 1, &devType, &newID);
         if (!found)
         {
@@ -160,29 +176,72 @@ void loop() {
           Serial.print("Deleted devices no longer associated with slave: ");
           Serial.println(numDeleted);
         }
+        State = ASSIGN_NEW_DEVICE;
       }
     }
     break;
-  case RESPOND_NEW_DEVICE:
+  case ASSIGN_NEW_DEVICE:
     Serial.println("Responding...");
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 16; // function code (this one is registers write)
     telegram.u16RegAdd = 0; // start address in slave
-    telegram.u16CoilsNo = 1; // number of elements (coils or registers) to read
+    telegram.u16CoilsNo = 1; // number of elements (coils or registers) to write
     telegram.au16reg = Transmission->getArray(); // pointer to a memory array in the Arduino
+    
+    master.setTimeOut(200);
+    master.query( telegram ); // send query (only once)
+    State = ASSIGN_NEW_DEVICE_WAIT;
+    break;
+  case ASSIGN_NEW_DEVICE_WAIT:
+    master.poll(); // check incoming messages
+    if (master.getState() == COM_IDLE)
+    {
+      State = CONFIRM_NEW_DEVICE;
+      Serial.print("Attempted to assign slave # ");
+      Serial.println(Transmission->get<uint8_t>(1));
+      delay(3000);
+    }
+    break;
+  case CONFIRM_NEW_DEVICE:
+    newID = Transmission->get<uint8_t>(1);
+    telegram.u8id = newID; // slave address
+    telegram.u8fct = 3; // function code (this one is registers read)
+    telegram.u16RegAdd = 0; // start address in slave
+    telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 5; // number of elements (coils or registers) to read
+    telegram.au16reg = Response->getArray(); // pointer to a memory array in the Arduino
 
     master.query( telegram ); // send query (only once)
-    State++;
+    State = CONFIRM_NEW_DEVICE_WAIT;
     break;
-  case 4:
+  case CONFIRM_NEW_DEVICE_WAIT:
     master.poll(); // check incoming messages
-    if (master.getState() == COM_IDLE) {
-      State = 0;
-      Serial.print("Successfully assigned slave # ");
-      Serial.println(Transmission->get<uint8_t>(1));
+    if (master.getState() == COM_IDLE)
+    {
+      uint8_t newID = Transmission->get<uint8_t>(1);
+      if (master.getTimeOutState())
+      {
+        Serial.println("Slave timed out.");
+        State = WAIT;
+      }
+      else if (Response->get<uint8_t>(1) == newID)
+      {
+        Serial.print("Slave # ");
+        Serial.print(newID);
+        Serial.println(" was successfully assigned!");
+      }
+      else
+      {
+        Serial.print("Slave # ");
+        Serial.print(newID);
+        Serial.print(" is erroneously reporting itself as slave # ");
+        Serial.println(Response->get<uint8_t>(0));
+      }
+      State = WAIT;
     }
     break;
   }
+
+  
   delay(1);
 }
 

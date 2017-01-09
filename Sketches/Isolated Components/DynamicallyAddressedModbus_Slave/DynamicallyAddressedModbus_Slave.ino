@@ -25,7 +25,7 @@ RegisterData *Registers;
 
 uint8_t SlaveID = 247;
 
-char* Dev1Name = const_cast<char*>("Cha_Arc0");
+char* Dev1Name = const_cast<char*>("Cha_Arc1");
 char* Dev2Name = const_cast<char*>("Cha_Mtr1");
 char* Dev3Name = const_cast<char*>("Cha_Dev3");
 char* Dev4Name = const_cast<char*>("Cha_Dev4");
