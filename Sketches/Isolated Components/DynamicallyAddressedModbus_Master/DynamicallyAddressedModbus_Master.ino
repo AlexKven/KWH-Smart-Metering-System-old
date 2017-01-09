@@ -34,6 +34,7 @@ enum
 // data array for modbus network sharing
 RegisterData *Transmission;
 RegisterData *Response;
+uint8_t** DevNameList;
 uint8_t State;
 
 SoftwareSerial serial(10, 11);
@@ -58,6 +59,7 @@ void setup()
 {
   Transmission = new RegisterData(MAX_TRANSMISSION_SIZE);
   Response = new RegisterData(MAX_RESPONSE_SIZE);
+  DevNameList = new uint8_t*[MAX_DEVICES_PER_SLAVE];
   InitializeDeviceDirectory();
   
   Serial.begin(9600);
@@ -101,8 +103,9 @@ void loop() {
         State = RESPOND_NEW_DEVICE;
         u32wait = millis() + 50;
         uint8_t newID;
-        uint8_t dummy;
-        bool found = FindDeviceDetails(Response->getArray<uint8_t>() + 1, &dummy, &newID);
+        uint8_t devSlaveID;
+        uint8_t devType;
+        bool found = FindDeviceDetails(Response->getArray<uint8_t>() + 1, &devType, &newID);
         if (!found)
           newID = FindFreeSlaveID();
         int numDevices = 0;
@@ -120,14 +123,30 @@ void loop() {
         }
         for (int i = 0; i < numDevices; i++)
         {
+          DevNameList[i] = Response->getArray<uint8_t>() + i * 10 + 1;
+          uint8_t curDevType = Response->get<uint8_t>(i * 10);
           Serial.print("Device type: ");
-          Serial.println(Response->get<uint8_t>(i * 10));
+          Serial.println(curDevType);
           Serial.print("Device name: ");
           for (int j = 0; j < 8; j++)
             Serial.write(Response->get<char>(i * 10 + 1 + j));
           Serial.println("");
-          if (!FindDeviceDetails(Response->getArray<uint8_t>() + i * 10 + 1, &dummy, &dummy))
-            AddToDeviceDirectory(Response->getArray<uint8_t>() + i * 10 + 1, Response->get<uint8_t>(i * 10), newID);
+          if (!FindDeviceDetails(DevNameList[i], &devType, &devSlaveID))
+            AddToDeviceDirectory(DevNameList[i], curDevType, newID);
+          else if (devType != curDevType || devSlaveID != newID)
+          {
+            UpdateItemInDeviceDirectory(DevNameList[i], curDevType, newID);
+            Serial.print("Updated device to have type ");
+            Serial.print(curDevType);
+            Serial.print(" and slaveID ");
+            Serial.println(newID);
+          }
+        }
+        int numDeleted = DeleteDevicesForSlaveNotInList(DevNameList, numDevices, newID);
+        if (numDeleted > 0)
+        {
+          Serial.print("Deleted devices no longer associated with slave: ");
+          Serial.println(numDeleted);
         }
       }
     }

@@ -26,8 +26,14 @@ uint8_t SlaveID = 247;
 
 char* Dev1Name = const_cast<char*>("Cha_Mtr0");
 char* Dev2Name = const_cast<char*>("Cha_Arc0");
+char* Dev3Name = const_cast<char*>("Cha_Dev3");
+char* Dev4Name = const_cast<char*>("Cha_Dev4");
+char* Dev5Name = const_cast<char*>("Cha_Dev5");
 char Dev1Type = 1;
 char Dev2Type = 2;
+char Dev3Type = 128;
+char Dev4Type = 130;
+char Dev5Type = 129;
 
 SoftwareSerial serial(10, 11);
 
@@ -48,10 +54,15 @@ void setup()
   slave.begin(19200); // baud-rate at 19200
   Registers->set<uint8_t>(0, Dev1Type);
   Registers->set<uint8_t>(10, Dev2Type);
-  Registers->set<uint8_t>(30, 0);
+  Registers->set<uint8_t>(20, Dev3Type);
+  Registers->set<uint8_t>(30, Dev4Type);
+  Registers->set<uint8_t>(40, Dev5Type);
   Registers->setString(1, Dev1Name, 8);
   Registers->setString(11, Dev2Name, 8);
-  for (int i = 0; i < 20; i++)
+  Registers->setString(21, Dev3Name, 8);
+  Registers->setString(31, Dev4Name, 8);
+  Registers->setString(41, Dev5Name, 8);
+  for (int i = 0; i < 50; i++)
   {
     Serial.println(Registers->get<uint8_t>(i));
   }

@@ -50,10 +50,11 @@ int AddToDeviceDirectory(uint8_t* devName8, uint8_t devType, int slaveID)
   return row;
 }
 
-bool FindDeviceDetails(uint8_t* devName8, uint8_t *devTypeOut, uint8_t *slaveIDOut)
+bool FindDeviceDetails(uint8_t* devName8, uint8_t *devTypeOut, uint8_t *slaveIDOut, int *rowOut)
 {
   *devTypeOut = 0;
   *slaveIDOut = 0;
+  *rowOut = -1;
   int ind;
   bool found;
   for (int i = 0; i < MAX_DEVICES; i++)
@@ -76,11 +77,55 @@ bool FindDeviceDetails(uint8_t* devName8, uint8_t *devTypeOut, uint8_t *slaveIDO
       {
         *devTypeOut = DeviceDirectory[ind + 8];
         *slaveIDOut = DeviceDirectory[ind + 9];
+        *rowOut = i;
         return true;
       }
     }
   }
   return false;
+}
+
+bool FindDeviceDetails(uint8_t* devName8, uint8_t *devTypeOut, uint8_t *slaveIDOut)
+{
+  int dummy;
+  return FindDeviceDetails(devName8, devTypeOut, slaveIDOut, &dummy);
+}
+
+int DeleteDevicesForSlaveNotInList(uint8_t** devName8s, int devName8sCount, uint8_t slaveID)
+{
+  int numDeleted = 0;
+  int ind;
+  for (int i = 0; i < MAX_DEVICES; i++)
+  {
+    ind = 10 * i;
+    if (DeviceDirectory[ind + 8] == 0)
+    {
+      if (DeviceDirectory[ind + 9] == 0)
+        return numDeleted;
+    }
+    else if (DeviceDirectory[ind + 9] == slaveID)
+    {
+      bool found = false;
+      for (int k = 0; k < devName8sCount; k++)
+      {
+        uint8_t* curName = devName8s[k];
+        bool match = true;
+        for (int j = 0; j < 8; j++)
+        {
+          if (curName[j] != DeviceDirectory[ind +j])
+            match = false;
+        }
+        if (match)
+          found = true;
+      }
+      if (!found)
+      {
+        ClearDeviceDirectoryRow(i);
+        numDeleted++;
+      }
+    }
+  }
+  numDeleted++;
 }
 
 void InsertIntoDeviceDirectoryRow(int row, uint8_t* devName8, uint8_t devType, int slaveID)
@@ -90,6 +135,20 @@ void InsertIntoDeviceDirectoryRow(int row, uint8_t* devName8, uint8_t devType, i
     DeviceDirectory[ind + i] = devName8[i];
   DeviceDirectory[ind + 8] = devType;
   DeviceDirectory[ind + 9] = slaveID;
+}
+
+bool UpdateItemInDeviceDirectory(uint8_t* devName8, uint8_t devType, int slaveID)
+{
+  uint8_t curType;
+  uint8_t curID;
+  int row;
+  FindDeviceDetails(devName8, &curType, &curID, &row);
+  if (row >= 0 && (curType != devType || curID != slaveID))
+  {
+    InsertIntoDeviceDirectoryRow(row, devName8, devType, slaveID);
+    return true;
+  }
+  return false;
 }
 
 void ClearDeviceDirectoryRow(int row)
