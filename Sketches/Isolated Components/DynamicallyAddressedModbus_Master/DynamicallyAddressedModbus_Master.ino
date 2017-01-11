@@ -21,7 +21,7 @@
 #include <EEPROM.h>
 #include "RegisterData.cpp"
 
-#define UNASSIGNED 247;
+const int UNASSIGNED = 247;
 const int MAX_DEVICES_PER_SLAVE = 5;
 const int MAX_RESPONSE_SIZE = 120;
 const int MAX_TRANSMISSION_SIZE = 120;
@@ -80,6 +80,23 @@ void setup()
   State = WAIT;
 }
 
+void sendPreMessage(uint8_t code, uint8_t size, uint8_t recipient)
+{
+  Transmission->set<uint8_t>(0, code);
+  Transmission->set<uint8_t>(1, size);
+  telegram.u8id = recipient; // slave address
+  telegram.u8fct = 16; // function code (this one is registers write)
+  telegram.u16RegAdd = 0; // start address in slave
+  telegram.u16CoilsNo = 1; // number of elements (coils or registers) to write
+  telegram.au16reg = Transmission->getArray(); // pointer to a memory array in the Arduino
+  master.query(telegram);
+  do
+  {
+    master.poll();
+  } while (master.getState() != COM_IDLE);
+  delay(5);
+}
+
 void loop()
 {
   uint8_t newID;
@@ -97,11 +114,13 @@ void loop()
     break;
   case CHECK_NEW_DEVICES: 
     Serial.println("Checking for new devices...");
+    sendPreMessage(1, 0, UNASSIGNED);
+    
     Response->set(0, 0);
     
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
-    telegram.u16RegAdd = 0; // start address in slave
+    telegram.u16RegAdd = 1; // start address in slave
     telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 5; // number of elements (coils or registers) to read
     telegram.au16reg = Response->getArray(); // pointer to a memory array in the Arduino
 
@@ -184,7 +203,7 @@ void loop()
     Serial.println("Responding...");
     telegram.u8id = UNASSIGNED; // slave address
     telegram.u8fct = 16; // function code (this one is registers write)
-    telegram.u16RegAdd = 0; // start address in slave
+    telegram.u16RegAdd = 1; // start address in slave
     telegram.u16CoilsNo = 1; // number of elements (coils or registers) to write
     telegram.au16reg = Transmission->getArray(); // pointer to a memory array in the Arduino
     
@@ -206,7 +225,7 @@ void loop()
     newID = Transmission->get<uint8_t>(1);
     telegram.u8id = newID; // slave address
     telegram.u8fct = 3; // function code (this one is registers read)
-    telegram.u16RegAdd = 0; // start address in slave
+    telegram.u16RegAdd = 1; // start address in slave
     telegram.u16CoilsNo = MAX_DEVICES_PER_SLAVE * 5; // number of elements (coils or registers) to read
     telegram.au16reg = Response->getArray(); // pointer to a memory array in the Arduino
 

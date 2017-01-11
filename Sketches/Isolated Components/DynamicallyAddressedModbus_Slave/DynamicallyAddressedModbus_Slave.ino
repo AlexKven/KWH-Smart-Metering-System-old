@@ -36,6 +36,8 @@ char Dev3Type = 128;
 char Dev4Type = 130;
 char Dev5Type = 129;
 
+bool Assigning = false;
+
 SoftwareSerial serial(10, 11);
 
 /**
@@ -49,23 +51,28 @@ Modbus slave(247,1,4); // this is slave @1 and RS-232 or USB-FTDI
 
 void setup()
 {
-  Registers = new RegisterData(25);
+  Registers = new RegisterData(26);
   Serial.begin(9600);
   Serial.println("Initialized unassigned");
   slave.begin(19200); // baud-rate at 19200
-  Registers->set<uint8_t>(0, Dev1Type);
-  Registers->set<uint8_t>(10, Dev2Type);
-  Registers->set<uint8_t>(20, Dev3Type);
-  Registers->set<uint8_t>(30, Dev4Type);
-  Registers->set<uint8_t>(40, Dev5Type);
-  Registers->setString(1, Dev1Name, 8);
-  Registers->setString(11, Dev2Name, 8);
-  Registers->setString(21, Dev3Name, 8);
-  Registers->setString(31, Dev4Name, 8);
-  Registers->setString(41, Dev5Name, 8);
+  Registers->set<uint8_t>(0, 0);
+}
+
+void populateMessage()
+{
+  Registers->set<uint8_t>(2, Dev1Type);
+  Registers->set<uint8_t>(12, Dev2Type);
+  Registers->set<uint8_t>(22, Dev3Type);
+  Registers->set<uint8_t>(32, Dev4Type);
+  Registers->set<uint8_t>(42, Dev5Type);
+  Registers->setString(3, Dev1Name, 8);
+  Registers->setString(13, Dev2Name, 8);
+  Registers->setString(23, Dev3Name, 8);
+  Registers->setString(33, Dev4Name, 8);
+  Registers->setString(43, Dev5Name, 8);
   for (int i = 0; i < 50; i++)
   {
-    Serial.println(Registers->get<uint8_t>(i));
+    Serial.println(Registers->get<uint8_t>(i + 2));
   }
 }
 
@@ -75,12 +82,22 @@ void loop()
   slave.poll(Registers->getArray(), Registers->getLength());
   if (SlaveID == 247) //Slave is unassigned
   {
-    if (Registers->get<uint8_t>(0) == 0) //Slave was just assigned
+    if (Registers->get<uint8_t>(0) == 1) //About to be polled
     {
-      SlaveID = Registers->get<uint8_t>(1);
-      slave.setID(SlaveID);
-      Serial.print("Successfully assigned slave # ");
-      Serial.println(SlaveID);
+      if (!Assigning)
+      {
+        Assigning = true;
+        populateMessage();
+      }
+      else if (Registers->get<uint8_t>(2) == 0) //Slave was just assigned
+      {
+        Assigning = false;
+        Registers->set<uint8_t>(0, 0);
+        SlaveID = Registers->get<uint8_t>(3);
+        slave.setID(SlaveID);
+        Serial.print("Successfully assigned slave # ");
+        Serial.println(SlaveID);
+      }
     }
   }
   else
