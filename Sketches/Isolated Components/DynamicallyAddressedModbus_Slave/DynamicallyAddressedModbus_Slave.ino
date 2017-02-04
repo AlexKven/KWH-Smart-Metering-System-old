@@ -76,6 +76,26 @@ void populateMessage()
   }
 }
 
+void receiveAssignment()
+{
+  Registers->set<uint8_t>(0, 0);
+  SlaveID = Registers->get<uint8_t>(3);
+  slave.setID(SlaveID);
+  Serial.print("Successfully assigned slave # ");
+  Serial.println(SlaveID);
+}
+
+void receiveDataRequest(uint8_t len)
+{
+  Serial.print("Data request received:");
+  for (int i = 1; i < len; i++)
+  {
+    Serial.print(" ");
+    Serial.print(Registers->get(i));
+  }
+  Serial.println("");
+}
+
 void loop()
 {
   uint8_t *bytes = Registers->getArray<uint8_t>();
@@ -92,17 +112,25 @@ void loop()
       else if (Registers->get<uint8_t>(2) == 0) //Slave was just assigned
       {
         Assigning = false;
-        Registers->set<uint8_t>(0, 0);
-        SlaveID = Registers->get<uint8_t>(3);
-        slave.setID(SlaveID);
-        Serial.print("Successfully assigned slave # ");
-        Serial.println(SlaveID);
+        receiveAssignment();
       }
     }
   }
   else
   {
-
+    delay(250);
+    Serial.println(Registers->get<uint8_t>(0));
+    if (Registers->get<uint8_t>(0) == 2)
+    {
+      Serial.println("Something...");
+      uint8_t len = Registers->get<uint8_t>(1);
+      while (Registers->get<uint8_t>(0) == 2)
+      {
+        slave.poll(Registers->getArray(), len);
+        delay(1);
+      }
+      receiveDataRequest(len);
+    }
   }
   delay(1);
 }
