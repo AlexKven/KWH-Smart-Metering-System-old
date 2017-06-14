@@ -1,0 +1,7 @@
+﻿  VSPDE.cpp
+c:\github\kwh-smart-metering-system\visual studio\test bench\test bench\vspde.cpp(137): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  Program.cpp
+c:\github\kwh-smart-metering-system\visual studio\test bench\test bench\program.cpp(10): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  DeviceDirectory.ino
+c:\github\kwh-smart-metering-system\sketches\isolated components\dynamicallyaddressedmodbus_master\devicedirectory.ino(214): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  Generating Code...
