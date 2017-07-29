@@ -1,7 +1,63 @@
-﻿  VSPDE.cpp
-c:\github\kwh-smart-metering-system\visual studio\test bench\test bench\vspde.cpp(137): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
-  Program.cpp
-c:\github\kwh-smart-metering-system\visual studio\test bench\test bench\program.cpp(10): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
-  DeviceDirectory.ino
-c:\github\kwh-smart-metering-system\sketches\isolated components\dynamicallyaddressedmodbus_master\devicedirectory.ino(214): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
-  Generating Code...
+﻿  unittest1.cpp
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1630): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1632): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1633): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1634): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1635): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1636): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1637): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1638): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1639): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1640): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1641): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1642): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1643): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1644): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1645): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1646): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1647): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1648): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1649): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1650): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1651): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1652): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1653): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1654): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1655): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1656): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1657): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1658): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1659): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1660): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1661): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1662): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1663): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1664): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1665): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1666): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1667): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1668): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1669): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1670): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1671): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1672): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1673): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1674): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1675): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1676): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1677): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1678): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1679): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1680): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1681): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1682): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1683): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1684): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1685): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1686): warning C4068: unknown pragma
+c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\iomxx0_1.h(1687): warning C4068: unknown pragma
+c:\github\kwh-smart-metering-system\sketches\isolated components\dynamicallyaddressedmodbus_master\devicedirectory.ino(29): warning C4101: 'found': unreferenced local variable
+c:\github\kwh-smart-metering-system\sketches\isolated components\dynamicallyaddressedmodbus_master\devicedirectory.ino(219): warning C4715: 'DeviceDirectory_::DeleteDevicesForSlaveNotInList': not all control paths return a value
+     Creating library C:\GitHub\KWH-Smart-Metering-System\Visual Studio\Test Bench\Debug\Unit Tests.lib and object C:\GitHub\KWH-Smart-Metering-System\Visual Studio\Test Bench\Debug\Unit Tests.exp
+  Unit Tests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\Visual Studio\Test Bench\Debug\Unit Tests.dll
+  Unit Tests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\Visual Studio\Test Bench\Debug\Unit Tests.pdb (Partial PDB)
