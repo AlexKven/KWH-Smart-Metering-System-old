@@ -1,4 +1,3 @@
 ﻿  unittest1.cpp
-c:\github\kwh-smart-metering-system\2017\libraries\devicedirectory.h(38): warning C4715: 'DeviceDirectory<short,int,30,8>::AddDevice': not all control paths return a value
   UnitTests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\2017\Smart Metering System 2017\Debug\UnitTests.dll
   UnitTests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\2017\Smart Metering System 2017\Debug\UnitTests.pdb (Partial PDB)

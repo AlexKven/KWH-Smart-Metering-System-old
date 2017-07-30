@@ -1,10 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\2017",
+    "\\2017\\Libraries",
     "\\Sketches",
     "\\Sketches\\Isolated Components",
     "\\Visual Studio",
     "\\Visual Studio\\Test Bench"
   ],
+  "SelectedNode": "\\2017\\Libraries\\DeviceDirectory.h",
   "PreviewInSolutionExplorer": false
 }

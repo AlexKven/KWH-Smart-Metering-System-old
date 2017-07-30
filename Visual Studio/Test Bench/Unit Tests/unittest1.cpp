@@ -34,7 +34,7 @@ namespace UnitTests
 		}
 
 		template<typename T>
-		void expected_value(T expected, T actual, wstring testName, )
+		void expected_value(T expected, T actual, wstring testName)
 		{
 			bool result = (expected == actual);
 			std::wostringstream ws;
