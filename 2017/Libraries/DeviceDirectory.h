@@ -17,6 +17,10 @@ private:
 		//deviceType = 0 && deviceSlaveID == 1: No device, not at end of list
 	};
 
+#if UNIT_TEST
+	int testCounter = 0;
+#endif
+
 	void copyName(T_byte destination[S_name], T_byte source[S_name])
 	{
 		for (int i = 0; i < S_name; i++)
@@ -34,7 +38,7 @@ private:
 
 	Entry data[S_directory];
 
-	bool compareNames(T_byte name1[S_name], T_byte name2[S_name])
+	bool compareNames(T_byte *name1, T_byte *name2)
 	{
 		for (int i = 0; i < S_name; i++)
 		{
@@ -85,44 +89,103 @@ public:
 		return true;
 	}
 
-	bool GetDeviceDetails(T_byte deviceName[S_name], T_byte *deviceType_out, T_byte *deviceSlaveID_out)
+//	bool GetDeviceDetails(T_byte deviceName[S_name], T_byte *deviceType_out, T_byte *deviceSlaveID_out)
+//	{
+//		T_int row = 0;
+//		Entry entry = data[row];
+//		while ((entry.deviceType != 0 || entry.deviceSlaveID == 1) && row < S_directory)
+//		{
+//			if (entry.deviceType != 0 && compareNames(entry.deviceName, deviceName))
+//			{
+//				safelySetOut(deviceType_out, entry.deviceType);
+//				safelySetOut(deviceSlaveID_out, entry.deviceSlaveID);
+//				return true;
+//			}
+//			row++;
+//			entry = data[row];
+//#if UNIT_TEST
+//			testCounter++;
+//#endif
+//		}
+//		return false;
+//	}
+
+//	bool RemoveDevice(T_byte deviceName[S_name], T_byte *deviceType_out, T_byte *deviceSlaveID_out)
+//	{
+//		T_int row = 0;
+//		Entry entry = data[row];
+//		while ((entry.deviceType != 0 || entry.deviceSlaveID == 1) && row < S_directory)
+//		{
+//			if (entry.deviceType != 0 && compareNames(entry.deviceName, deviceName))
+//			{
+//				safelySetOut(deviceType_out, entry.deviceType);
+//				safelySetOut(deviceSlaveID_out, entry.deviceSlaveID);
+//
+//				entry.deviceType = 0;
+//				data[row] = entry;
+//				setLastEmptyIndicators(row);
+//				return true;
+//			}
+//			row++;
+//			entry = data[row];
+//#if UNIT_TEST
+//			testCounter++;
+//#endif
+//		}
+//		return false;
+//	}
+
+	bool RemoveDevice(T_int row)
 	{
-		T_int row = 0;
+		if (row == S_directory || row < 0)
+			return false;
 		Entry entry = data[row];
-		while ((entry.deviceType != 0 || entry.deviceSlaveID == 1) && row < S_directory)
-		{
-			if (entry.deviceType != 0 && compareNames(entry.deviceName, deviceName))
-			{
-				safelySetOut(deviceType_out, entry.deviceType);
-				safelySetOut(deviceSlaveID_out, entry.deviceSlaveID);
-				return true;
-			}
-			row++;
-			entry = data[row];
-		}
-		return false;
+		entry.deviceType = 0;
+		data[row] = entry;
+		setLastEmptyIndicators(row);
+		return true;
 	}
 
-	bool RemoveDevice(T_byte deviceName[S_name], T_byte *deviceType_out, T_byte *deviceSlaveID_out)
+	T_int searchNext(T_int searchStart, T_byte *deviceType_inout, T_byte *slaveID_inout, T_byte (*deviceName_inout)[S_name], bool searchByDeviceType, bool searchBySlaveID, bool searchByDeviceName)
 	{
-		T_int row = 0;
+		T_int row = searchStart;
+		if (row == S_directory)
+			return row;
 		Entry entry = data[row];
 		while ((entry.deviceType != 0 || entry.deviceSlaveID == 1) && row < S_directory)
 		{
-			if (entry.deviceType != 0 && compareNames(entry.deviceName, deviceName))
+			bool match = true;
+			if (match && searchBySlaveID)
+				match = (slaveID_inout == NULL || entry.deviceSlaveID == *slaveID_inout);
+			if (match && searchByDeviceType)
+				match = (deviceType_inout == NULL || entry.deviceType == *deviceType_inout);
+			if (match && searchByDeviceName)
 			{
-				safelySetOut(deviceType_out, entry.deviceType);
-				safelySetOut(deviceSlaveID_out, entry.deviceSlaveID);
-
-				entry.deviceType = 0;
-				data[row] = entry;
-				setLastEmptyIndicators(row);
-
-				return true;
+				if (deviceName_inout == NULL)
+					match = true;
+				else
+				{
+					T_byte name[S_name];
+					copyName(name, *deviceName_inout);
+					match = compareNames(entry.deviceName, name);
+				}
+			}
+			if (match)
+			{
+				if (!searchBySlaveID)
+					safelySetOut(slaveID_inout, entry.deviceSlaveID);
+				if (!searchByDeviceType)
+					safelySetOut(deviceType_inout, entry.deviceType);
+				if (!searchByDeviceName && deviceName_inout != NULL)
+					copyName(*deviceName_inout, entry.deviceName);
+				return row;
 			}
 			row++;
 			entry = data[row];
+#if UNIT_TEST
+			testCounter++;
+#endif
 		}
-		return false;
+		return S_directory;
 	}
 };

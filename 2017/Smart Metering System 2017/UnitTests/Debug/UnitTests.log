@@ -1,3 +1,13 @@
 ﻿  unittest1.cpp
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(77): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(78): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(81): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(82): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(85): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(86): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(115): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(121): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(127): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
+c:\github\kwh-smart-metering-system\2017\smart metering system 2017\unittests\unittest1.cpp(133): warning C4244: 'argument': conversion from 'short' to 'char', possible loss of data
   UnitTests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\2017\Smart Metering System 2017\Debug\UnitTests.dll
   UnitTests.vcxproj -> C:\GitHub\KWH-Smart-Metering-System\2017\Smart Metering System 2017\Debug\UnitTests.pdb (Partial PDB)
