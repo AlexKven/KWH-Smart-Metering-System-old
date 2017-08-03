@@ -18,5 +18,8 @@
     <ClInclude Include="..\..\Libraries\DeviceDirectory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Libraries\Communicator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
